@@ -48,6 +48,8 @@ management:
 
 # LedgerFlow-specific settings
 ledgerflow:
+  rate-limit:
+    requests-per-minute: 60
   events:
     # 'kafka' publishes to a broker and persists an audit trail; 'noop' just logs.
     transport: ${EVENTS_TRANSPORT:kafka}
