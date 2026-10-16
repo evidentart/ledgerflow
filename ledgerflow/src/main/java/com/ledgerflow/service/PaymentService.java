@@ -3,29 +3,35 @@ package com.ledgerflow.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ledgerflow.api.dto.CreatePaymentRequest;
 import com.ledgerflow.api.dto.PaymentResponse;
+import com.ledgerflow.api.dto.PaymentEventResponse;
 import com.ledgerflow.domain.Enums;
 import com.ledgerflow.domain.IdempotencyRecord;
 import com.ledgerflow.domain.Payment;
 import com.ledgerflow.exception.ApiException;
 import com.ledgerflow.repository.PaymentRepository;
+import com.ledgerflow.repository.PaymentEventRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
 public class PaymentService {
 
     private final PaymentRepository payments;
+    private final PaymentEventRepository paymentEvents;
     private final LedgerService ledger;
     private final IdempotencyService idempotency;
     private final ObjectMapper objectMapper;
 
     public PaymentService(PaymentRepository payments, LedgerService ledger,
-                          IdempotencyService idempotency, ObjectMapper objectMapper) {
+                          IdempotencyService idempotency, ObjectMapper objectMapper,
+                          PaymentEventRepository paymentEvents) {
         this.payments = payments;
+        this.paymentEvents = paymentEvents;
         this.ledger = ledger;
         this.idempotency = idempotency;
         this.objectMapper = objectMapper;
@@ -81,6 +87,13 @@ public class PaymentService {
                 .map(PaymentResponse::from)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND,
                         "Payment not found: " + paymentId));
+    }
+
+    @Transactional(readOnly = true)
+    public List<PaymentEventResponse> getEvents(UUID paymentId) {
+        return paymentEvents.findByPaymentIdOrderByOccurredAtAsc(paymentId).stream()
+                .map(PaymentEventResponse::from)
+                .toList();
     }
 
     // --- idempotency helpers ------------------------------------------------
