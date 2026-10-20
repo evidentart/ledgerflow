@@ -178,8 +178,4 @@ ledgerflow/              ← Spring Boot app (Java 21)
 CONTRIBUTING.md
 ```
 
----
 
-## License
-
-MIT
