@@ -71,7 +71,8 @@ public class KafkaHealthIndicator implements HealthIndicator {
             log.warn("Kafka health probe was interrupted", ex);
             return Health.down().withDetail("reason", "Kafka connectivity check was interrupted").build();
         } catch (Exception ex) {
-            log.warn("Kafka health probe failed", ex);
+            log.warn("Kafka health probe failed: {}", ex.toString());
+            log.debug("Kafka health probe failed", ex);
             return Health.down().withDetail("reason", "Kafka broker is unavailable").build();
         } finally {
             if (adminClient != null) {

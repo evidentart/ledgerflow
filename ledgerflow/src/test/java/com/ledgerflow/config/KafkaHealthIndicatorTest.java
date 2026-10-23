@@ -114,7 +114,8 @@ class KafkaHealthIndicatorTest {
         assertThat(health.getStatus().getCode()).isEqualTo("DOWN");
         assertThat(health.getDetails()).containsEntry("reason", "Kafka broker is unavailable");
         assertThat(health.toString()).doesNotContain("sensitive broker details");
-        assertThat(output).contains("Kafka health probe failed", "sensitive broker details");
+        assertThat(output).contains("Kafka health probe failed: ", "sensitive broker details")
+                .doesNotContain("\tat ");
         verify(adminClient).close(Duration.ofMillis(100));
     }
 
